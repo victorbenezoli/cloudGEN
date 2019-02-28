@@ -11,25 +11,30 @@ import datetime
 sys.path.append('src/')
 from claudio_createSo import createSo
 
-def main(infile,outfile):
-
-    Ro0 = createSo(infile,0)
-    Ro1 = createSo(infile,1)
-
-    coefa = 0.251
-    coefb = 0.509
+def main(infile,outfile,vname):
 
     fnames = fm.filter(os.listdir(infile),'*.nc')
 
     if np.size(fnames) == 0:
-        print("Nenhum arquivo NetCDF foi encontrado!")
+        errmsg = "Nenhum arquivo NetCDF foi encontrado!"
         exit()
+
+    Ro0 = createSo(infile, 0)
+    Ro1 = createSo(infile, 1)
+
+    coefa = 0.251
+    coefb = 0.509
 
     for fname in fnames:
 
         filename = infile+str(fname)
         infile = nc4.Dataset(filename, 'r')
-        rad = infile.variables['dswrf'][:]
+        try:
+            rad = infile.variables[vname][:]
+            errmsg = "Sucesso!"
+        except:
+            errmsg = "Variável "+vname+" não encontrada no arquivo netCDF."
+            exit()
 
         time = infile.variables['time'][:]
         t_units = getattr(infile.variables['time'],'units',False)
