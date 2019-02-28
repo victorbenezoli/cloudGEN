@@ -113,7 +113,7 @@ class window(QWidget):
             self.logbox.appendPlainText(self.fnames[i])
 
     def choose_directory2(self):
-        self.path2 = '/'+QFileDialog.getExistingDirectory(self, "Selecionar pasta")
+        self.path2 = QFileDialog.getExistingDirectory(self, "Selecionar pasta")
         self.path2 = self.path2+"/"
         self.button2.setText(self.path2)
 

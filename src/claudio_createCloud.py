@@ -27,7 +27,7 @@ def main(infile,outfile,vname):
 
     for fname in fnames:
 
-        filename = infile+str(fname)
+        filename = str(infile)+str(fname)
         infile = nc4.Dataset(filename, 'r')
         try:
             rad = infile.variables[vname][:]
