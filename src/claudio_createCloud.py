@@ -6,28 +6,33 @@ import os
 import fnmatch as fm
 import netCDF4 as nc4
 import calendar as cl
-import datetime
+import cftime
 
 sys.path.append('src/')
 from claudio_createSo import createSo
 
-def main(infile,outfile,vname):
+def main(inpfile,outfile,vname):
 
-    fnames = fm.filter(os.listdir(infile),'*.nc')
+    fnames = fm.filter(os.listdir(inpfile),'*.nc')
 
     if np.size(fnames) == 0:
-        errmsg = "Nenhum arquivo NetCDF foi encontrado!"
+        errmsg = 1000
+        return errmsg
         exit()
 
-    Ro0 = createSo(infile, 0)
-    Ro1 = createSo(infile, 1)
+    Ro0 = createSo(inpfile, 0)
+    Ro1 = createSo(inpfile, 1)
 
     coefa = 0.251
     coefb = 0.509
 
+    print(fnames)
+
     for fname in fnames:
 
-        filename = str(infile)+str(fname)
+        print(fname)
+
+        filename = inpfile+str(fname)
         infile = nc4.Dataset(filename, 'r')
         try:
             rad = infile.variables[vname][:]
@@ -71,19 +76,19 @@ def main(infile,outfile,vname):
 
         ofname = outfile+"cld.daily."+str(date.year)+".nc"
 
-        outfile = nc4.Dataset(ofname,'w',format='NETCDF4_CLASSIC')
+        outncfile = nc4.Dataset(ofname,'w',format='NETCDF4_CLASSIC')
 
         time_values = time
 
-        latitude = outfile.createDimension("latitude", nlat)
-        longituded = outfile.createDimension("longitude", nlon)
-        time = outfile.createDimension("time", None)
+        latitude = outncfile.createDimension("latitude", nlat)
+        longituded = outncfile.createDimension("longitude", nlon)
+        time = outncfile.createDimension("time", None)
         time.isunlimited()
 
-        times = outfile.createVariable("time",np.float32,("time",))
-        latitudes = outfile.createVariable("latitude",np.float32,("latitude",))
-        longitudes = outfile.createVariable("longitude",np.float32,("longitude",))
-        clds = outfile.createVariable(varname = "cld",
+        times = outncfile.createVariable("time",np.float32,("time",))
+        latitudes = outncfile.createVariable("latitude",np.float32,("latitude",))
+        longitudes = outncfile.createVariable("longitude",np.float32,("longitude",))
+        clds = outncfile.createVariable(varname = "cld",
                                       datatype = np.float32,
                                       dimensions = ("time","latitude","longitude",),
                                       fill_value = -999.99)
@@ -105,6 +110,10 @@ def main(infile,outfile,vname):
         times[:] = np.array(time_values)
 
         clds[:] = cld
+
+        outncfile.close()
+
+    return 0
 
 if __name__ == '__main__':
     main()

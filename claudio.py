@@ -10,21 +10,33 @@ sys.path.append('src/')
 from claudio_createCloud import main as createCloud
 
 
-class work(QObject):
+class work(QThread):
+
+    done = pyqtSignal()
+    erro = pyqtSignal()
+
     def __init__(self, infile, outfile, vname):
         super(work, self).__init__()
 
         self.infile = infile
         self.outfile = outfile
         self.vname = vname
-        self.start.connect(self.run)
+        # self.start.connect(self.run)
 
-    start = pyqtSignal(str)
+    # start = pyqtSignal(int)
 
-    @pyqtSlot()
     def run(self):
-        createCloud(self.infile,self.outfile,self.vname)
-#        print(self.err)
+        try:
+            self.err = createCloud(self.infile,self.outfile,self.vname)
+            if (self.err == 1000):
+                self.erro.emit()
+            elif (self.err == 0):
+                self.done.emit()
+                print("Concluído!", "A operação foi concluída com sucesso!")
+
+        except:
+            print("Erro!", "A operação não pode ser concluída!")
+            return()
 
 
 class window(QWidget):
@@ -132,13 +144,22 @@ class window(QWidget):
         self.vname = str(self.optfield3.text())
         self.logbox.clear()
         self.logbox.appendPlainText("Aguarde...")
-        self.thread = QThread(self)
-        self.thread.start()
         self.worker = work(self.path1, self.path2, self.vname)
-        self.worker.moveToThread(self.thread)
-        self.worker.start.emit("start")
-        self.layoutLog.appendPlainText("Concluído!")
+        self.worker.done.connect(self.done)
+        self.worker.erro.connect(self.erro)
+        self.worker.start()
 
+    def done(self):
+        self.logbox.clear()
+        self.logbox.appendPlainText("Concluído!")
+        QMessageBox.information(self, "Concluído!", "A operação foi concluída com successo!")
+        pass
+
+    def erro(self):
+        self.logbox.clear()
+        self.logbox.appendPlainText("Erro!")
+        QMessageBox.critical(self, "Erro!", "Não existe arquivos na pasta de entrada!")
+        pass
 
 root = QApplication(sys.argv)
 app = window()

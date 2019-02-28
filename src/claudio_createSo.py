@@ -8,19 +8,19 @@ import os
 import calendar as cl
 
 
-def createSo(infile,isleap):
+def createSo(inpfile,isleap):
 
     if (isleap != 0 and isleap != 1):
         print("Option --isleap needs to be 0 (non-leap year) or 1 (leap year).")
         exit()
 
-    fname = fm.filter(os.listdir(infile),'*.nc')
+    fname = fm.filter(os.listdir(inpfile),'*.nc')
 
     if (np.size(fname) == 0):
         print("Nenhum arquivo NetCDF foi encontrado!")
         exit()
 
-    filename = infile+fname[0]
+    filename = inpfile+fname[0]
     infile = nc4.Dataset(filename,'r')
 
     try:
