@@ -13,7 +13,7 @@ import os
 import numpy as np
 
 sys.path.append('src/')
-sys.path.append('icon/')
+sys.path.append('.icon/')
 from cloudGEN_createCloud import main as createCloud
 from cloudGEN_getinfo import main as getinfo
 
@@ -101,10 +101,10 @@ class window(QWidget):
     def set_layout(self):
 
         self.grid = QGridLayout()
-        self.groupbox1 = QGroupBox("Select the data input:")
+        self.groupbox1 = QGroupBox("Choose the input and output folders:")
         self.groupbox1Layout = QFormLayout()
-        self.groupbox1Layout.addRow("Select the downward shortwave radiation folder: ", self.button1)
-        self.groupbox1Layout.addRow("Select the output folder: ", self.button2)
+        self.groupbox1Layout.addRow("Choose the downward shortwave radiation folder: ", self.button1)
+        self.groupbox1Layout.addRow("Choose the output folder: ", self.button2)
         self.groupbox1.setLayout(self.groupbox1Layout)
 
         self.groupbox2 = QGroupBox("Options:")
