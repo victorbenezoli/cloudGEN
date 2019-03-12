@@ -9,36 +9,30 @@ import calendar as cl
 import cftime
 
 sys.path.append('src/')
-from claudio_createSo import createSo
+from cloudGEN_createSo import createSo
 
-def main(inpfile,outfile,vname):
+def main(infolder,outfolder,outpattern,invname,outvname,coefa,coefb):
 
-    fnames = fm.filter(os.listdir(inpfile),'*.nc')
+    fnames = fm.filter(os.listdir(infolder),'*.nc')
 
     if np.size(fnames) == 0:
         errmsg = 1000
         return errmsg
         exit()
 
-    Ro0 = createSo(inpfile, 0)
-    Ro1 = createSo(inpfile, 1)
-
-    coefa = 0.251
-    coefb = 0.509
-
-    print(fnames)
+    Ro0 = createSo(infolder, 0)
+    Ro1 = createSo(infolder, 1)
 
     for fname in fnames:
 
-        print(fname)
-
-        filename = inpfile+str(fname)
+        filename = infolder+str(fname)
         infile = nc4.Dataset(filename, 'r')
         try:
-            rad = infile.variables[vname][:]
-            errmsg = "Sucesso!"
+            rad = infile.variables[invname][:]
+            errmsg = "Success!"
         except:
-            errmsg = "Variável "+vname+" não encontrada no arquivo netCDF."
+            errmsg = 2000
+            return errmsg
             exit()
 
         time = infile.variables['time'][:]
@@ -74,7 +68,7 @@ def main(inpfile,outfile,vname):
 
         cld = np.where(cld > 100, 100, np.where(cld < 0, 0, cld))
 
-        ofname = outfile+"cld.daily."+str(date.year)+".nc"
+        ofname = outfolder+outpattern+str(date.year)+".nc"
 
         outncfile = nc4.Dataset(ofname,'w',format='NETCDF4_CLASSIC')
 
@@ -88,7 +82,7 @@ def main(inpfile,outfile,vname):
         times = outncfile.createVariable("time",np.float32,("time",))
         latitudes = outncfile.createVariable("latitude",np.float32,("latitude",))
         longitudes = outncfile.createVariable("longitude",np.float32,("longitude",))
-        clds = outncfile.createVariable(varname = "cld",
+        clds = outncfile.createVariable(varname = outvname,
                                       datatype = np.float32,
                                       dimensions = ("time","latitude","longitude",),
                                       fill_value = -999.99)
